@@ -122,8 +122,14 @@ class DataHelper:
     def __get_or_load__(self, name, file):
         if getattr(self, name) is None:
             with self.get_pickle_file(file) as fin:
-                print('loading', file)
-                attr = pickle.load(fin)[0:self.num_examples]
+                if name == "__train_graphs__":
+                    pikl = pickle.load(fin)
+                    real_attr = {}
+                    for qasd in self.qas_ids:
+                        real_attr[qasd] = pikl[qasd]
+                else:
+                    attr = pickle.load(fin)[0: self.num_examples]
+                    self.qas_ids = [ex.qas_id for ex in attr]
                 setattr(self, name, attr)
         return getattr(self, name)
 
