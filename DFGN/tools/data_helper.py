@@ -123,8 +123,8 @@ class DataHelper:
         if getattr(self, name) is None:
             with self.get_pickle_file(file) as fin:
                 print('loading', file)
-                setattr(self, name, pickle.load(fin)[0:self.num_examples])
-
+                attr = pickle.load(fin)[0:self.num_examples]
+                setattr(self, name, attr)
         return getattr(self, name)
 
     # Features
