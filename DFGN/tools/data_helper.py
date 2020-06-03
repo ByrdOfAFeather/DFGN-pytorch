@@ -124,9 +124,9 @@ class DataHelper:
             with self.get_pickle_file(file) as fin:
                 if name == "__train_graphs__":
                     pikl = pickle.load(fin)
-                    real_attr = {}
+                    attr = {}
                     for qasd in self.qas_ids:
-                        real_attr[qasd] = pikl[qasd]
+                        attr[qasd] = pikl[qasd]
                 else:
                     attr = pickle.load(fin)[0: self.num_examples]
                     self.qas_ids = [ex.qas_id for ex in attr]
