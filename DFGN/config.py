@@ -35,7 +35,7 @@ def set_config():
     # learning and log
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--qat_epochs", type=int, default=5)
-    parser.add_argument("--batch_size", type=int, default=32)
+    parser.add_argument("--batch_size", type=int, default=5)
     parser.add_argument("--max_bert_size", type=int, default=8)
     parser.add_argument("--lr", type=float, default=2e-4)
     parser.add_argument('--decay', type=float, default=1.0)
