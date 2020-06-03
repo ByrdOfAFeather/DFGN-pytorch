@@ -156,8 +156,6 @@ def predict(model, dataloader, example_dict, feature_dict, prediction_file):
 
 def train_batch(model, batch):
     global global_step, total_train_loss
-    with open("test.txt", "a") as f:
-        f.write(str(batch))
 
     start, end, sp, Type, softmask, ent, yp1, yp2 = model(batch, return_yp=True)
     loss_list = compute_loss(batch, start, end, sp, Type, softmask)
