@@ -191,6 +191,9 @@ if __name__ == "__main__":
     dev_feature_dict = helper.dev_feature_dict
     eval_dataset = helper.dev_loader
 
+    with open("log.txt", "a") as f:
+        f.write("Finished loading data")
+
     # Allocate Models on GPU
     encoder_gpus = [int(i) for i in args.encoder_gpu.split(',')]
     model_gpu = 'cuda:{}'.format(args.model_gpu)
@@ -200,8 +203,13 @@ if __name__ == "__main__":
     encoder = torch.nn.DataParallel(encoder, device_ids=encoder_gpus)
     encoder.eval()
 
+    with open("log.txt", "a") as f:
+        f.write("Finished loading model")
 
     # Set Model
+
+    with open("log.txt", "a") as f:
+        f.write("Loading graph")
     model = GraphFusionNet(config=args)
     model.cuda(model_gpu)
     model.train()
@@ -218,6 +226,9 @@ if __name__ == "__main__":
     test_loss_record = []
     lock = threading.Lock()
     VERBOSE_STEP = args.verbose_step
+
+    with open("log.txt", "a") as f:
+        f.write("Starting training")
     while True:
         lock.acquire()
         if epc == args.qat_epochs + args.epochs:
