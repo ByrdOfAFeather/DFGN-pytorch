@@ -132,9 +132,9 @@ class DataHelper:
                         attr = pickle.load(fin)[0: self.num_examples]
                         self.qas_ids = [ex.qas_id for ex in attr]
                     setattr(self, name, attr)
-            except TypeError:
+            except TypeError as e:
                 with open("problems.txt", "a") as f:
-                    f.write(f"Tried to load {file} for {name} but encountered error : [ }")
+                    f.write(f"Tried to load {file} for {name} but encountered error : {e}")
         return getattr(self, name)
 
     # Features
