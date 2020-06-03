@@ -186,7 +186,7 @@ if __name__ == "__main__":
     helper = build_helper(gz=True, args=args)
     args.n_type = helper.n_type
     Full_Loader = helper.train_loader
-    Subset_Loader = helper.train_sub_loader
+    # Subset_Loader = helper.train_sub_loader
     dev_example_dict = helper.dev_example_dict
     dev_feature_dict = helper.dev_feature_dict
     eval_dataset = helper.dev_loader
@@ -239,10 +239,10 @@ if __name__ == "__main__":
                     print(i, test_loss_record)
                 exit(0)
 
-        if epc <= args.qat_epochs:
-            Loader = Subset_Loader
-        else:
-            Loader = Full_Loader
+        # if epc <= args.qat_epochs:
+        #     Loader = Subset_Loader
+        # else:
+        Loader = Full_Loader
         Loader.refresh()
 
         producer = ProducerThread(Loader, encoder)
