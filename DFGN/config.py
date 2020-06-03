@@ -41,7 +41,7 @@ def set_config():
     parser.add_argument('--decay', type=float, default=1.0)
     parser.add_argument('--early_stop_epoch', type=int, default=0)
     parser.add_argument("--verbose_step", default=50, type=int)
-    parser.add_argument("--grad_accumulate_step", default=1, type=int)
+    parser.add_argument("--grad_accumulate_step", default=2, type=int)
 
     parser.add_argument('--q_update', action='store_true', help='Whether update query')
     parser.add_argument('--basicblock_trans', action='store_true', help='transformer version basicblock')
