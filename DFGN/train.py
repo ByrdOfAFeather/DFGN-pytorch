@@ -184,11 +184,11 @@ if __name__ == "__main__":
     args.n_type = helper.n_type
 
     # Set datasets
-    Full_Loader = helper.train_loader
+    # Full_Loader = helper.train_loader
     Subset_Loader = helper.train_sub_loader
-    dev_example_dict = helper.dev_example_dict
-    dev_feature_dict = helper.dev_feature_dict
-    eval_dataset = helper.dev_loader
+    # dev_example_dict = helper.dev_example_dict
+    # dev_feature_dict = helper.dev_feature_dict
+    # eval_dataset = helper.dev_loader
 
     import sys
     sys.exit(0)
