@@ -1,6 +1,8 @@
 import argparse
 from os.path import join
 from tqdm import tqdm
+
+from model_generator import build_helper
 from pytorch_pretrained_bert.modeling import BertModel
 from model.GFN import *
 from utils import *
@@ -72,9 +74,9 @@ def large_batch_encode(bert_model, batch, encoder_gpus, max_bert_bsz):
 
     ptr = 0
     while ptr < N:
-        all_doc_encoder_layers = bert_model(input_ids=doc_ids[ptr:ptr+max_bert_bsz],
-                                            token_type_ids=segment_ids[ptr:ptr+max_bert_bsz],
-                                            attention_mask=doc_mask[ptr:ptr+max_bert_bsz],
+        all_doc_encoder_layers = bert_model(input_ids=doc_ids[ptr:ptr + max_bert_bsz],
+                                            token_type_ids=segment_ids[ptr:ptr + max_bert_bsz],
+                                            attention_mask=doc_mask[ptr:ptr + max_bert_bsz],
                                             output_all_encoded_layers=False)
         tem_doc_encoding = all_doc_encoder_layers.detach()
         doc_encoding.append(tem_doc_encoding)
@@ -180,18 +182,15 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     args = set_config()
-    helper = DataHelper(gz=True, config=args)
-    args.n_type = helper.n_type
-
     # Set datasets
-    # Full_Loader = helper.train_loader
+    helper = build_helper(gz=True, args=args)
+    args.n_type = helper.n_type
+    Full_Loader = helper.train_loader
     Subset_Loader = helper.train_sub_loader
-    # dev_example_dict = helper.dev_example_dict
-    # dev_feature_dict = helper.dev_feature_dict
-    # eval_dataset = helper.dev_loader
+    dev_example_dict = helper.dev_example_dict
+    dev_feature_dict = helper.dev_feature_dict
+    eval_dataset = helper.dev_loader
 
-    import sys
-    sys.exit(0)
     # Allocate Models on GPU
     encoder_gpus = [int(i) for i in args.encoder_gpu.split(',')]
     model_gpu = 'cuda:{}'.format(args.model_gpu)
@@ -250,4 +249,3 @@ if __name__ == "__main__":
         consumer = ConsumerThread(Loader, model)
         producer.start()
         consumer.start()
-

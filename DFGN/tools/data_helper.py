@@ -7,7 +7,8 @@ from tools.data_iterator_pack import DataIteratorPack
 
 
 class DataHelper:
-    def __init__(self, gz=True, config=None):
+    def __init__(self, num_examples, gz=True, config=None):
+        self.num_examples = num_examples
         self.DataIterator = DataIteratorPack
         self.gz = gz
         self.suffix = '.pkl.gz' if gz else '.pkl'
@@ -122,7 +123,7 @@ class DataHelper:
         if getattr(self, name) is None:
             with self.get_pickle_file(file) as fin:
                 print('loading', file)
-                setattr(self, name, pickle.load(fin))
+                setattr(self, name, pickle.load(fin)[0:self.num_examples])
 
         return getattr(self, name)
 
