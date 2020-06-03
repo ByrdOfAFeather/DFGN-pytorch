@@ -177,18 +177,9 @@ def train_batch(model, batch):
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser()
     args = set_config()
-
-    # Allocate Models on GPU
-    encoder_gpus = [int(i) for i in args.encoder_gpu.split(',')]
-    model_gpu = 'cuda:{}'.format(args.model_gpu)
-
-    encoder = BertModel.from_pretrained(args.bert_model)
-    encoder.cuda(encoder_gpus[0])
-    encoder = torch.nn.DataParallel(encoder, device_ids=encoder_gpus)
-    encoder.eval()
-
     helper = DataHelper(gz=True, config=args)
     args.n_type = helper.n_type
 
@@ -198,6 +189,18 @@ if __name__ == "__main__":
     dev_example_dict = helper.dev_example_dict
     dev_feature_dict = helper.dev_feature_dict
     eval_dataset = helper.dev_loader
+
+    import sys
+    sys.exit(0)
+    # Allocate Models on GPU
+    encoder_gpus = [int(i) for i in args.encoder_gpu.split(',')]
+    model_gpu = 'cuda:{}'.format(args.model_gpu)
+
+    encoder = BertModel.from_pretrained(args.bert_model)
+    encoder.cuda(encoder_gpus[0])
+    encoder = torch.nn.DataParallel(encoder, device_ids=encoder_gpus)
+    encoder.eval()
+
 
     # Set Model
     model = GraphFusionNet(config=args)
