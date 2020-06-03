@@ -190,6 +190,8 @@ class DataHelper:
         train_features = [f for f in tqdm(self.train_features, desc='sub_fe') if f.qas_id in keylist]
         train_graphs = {k: self.train_graphs[k] for k in tqdm(keylist, desc='sub_graph')}
         print('subset: {}, total: {}'.format(subset, len(train_graphs)))
+        with open("log.txt", "a") as f:
+            f.write('subset: {}, total: {}'.format(subset, len(train_graphs)))
         return train_features, train_example_dict, train_graphs
 
     @property
