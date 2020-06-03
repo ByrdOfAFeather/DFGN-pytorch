@@ -123,7 +123,7 @@ class DataHelper:
         if getattr(self, name) is None:
             try:
                 with self.get_pickle_file(file) as fin:
-                    if name == "__train_graphs__":
+                    if name == "__train_graphs__" or name == "__dev_graphs__":
                         pikl = pickle.load(fin)
                         attr = {}
                         for qasd in self.qas_ids:
@@ -133,6 +133,7 @@ class DataHelper:
                         self.qas_ids = [ex.qas_id for ex in attr]
                     setattr(self, name, attr)
             except TypeError as e:
+                print(f"Tried to load {file} for {name} but encountered error : {e}")
                 with open("problems.txt", "a") as f:
                     f.write(f"Tried to load {file} for {name} but encountered error : {e}")
         return getattr(self, name)
