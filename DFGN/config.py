@@ -3,6 +3,8 @@ import os
 import json
 from os.path import join
 
+import numpy
+
 
 def process_arguments(args):
     args.checkpoint_path = join(args.checkpoint_path, args.name)
@@ -11,6 +13,7 @@ def process_arguments(args):
     args.n_heads = int(args.gnn.split(':')[1].split(',')[1])
     args.max_query_len = 50
     args.max_doc_len = 512
+    args.training_samples = numpy.random.uniform(1, 90449, [1])
 
 
 def save_settings(args):
@@ -20,6 +23,8 @@ def save_settings(args):
 
 
 def set_config():
+    epoch = int(numpy.random.uniform(1, 50, [1]))
+
     parser = argparse.ArgumentParser()
     data_path = 'output'
 
@@ -33,11 +38,11 @@ def set_config():
                         help='Currently only support bert-base-uncased and bert-large-uncased')
 
     # learning and log
-    parser.add_argument("--epochs", type=int, default=30)
+    parser.add_argument("--epochs", type=int, default=epoch)
     parser.add_argument("--qat_epochs", type=int, default=5)
     parser.add_argument("--batch_size", type=int, default=1)
     parser.add_argument("--max_bert_size", type=int, default=8)
-    parser.add_argument("--lr", type=float, default=2e-4)
+    parser.add_argument("--lr", type=float, default=2e-5)
     parser.add_argument('--decay', type=float, default=1.0)
     parser.add_argument('--early_stop_epoch', type=int, default=0)
     parser.add_argument("--verbose_step", default=50, type=int)
@@ -50,8 +55,8 @@ def set_config():
     parser.add_argument("--trans_heads", type=int, default=3)
 
     # device
-    parser.add_argument("--encoder_gpu", default='1', type=str, help="device to place bert encoder.")
-    parser.add_argument("--model_gpu", default='0', type=str, help="device to place model.")
+    parser.add_argument("--encoder_gpu", default='0,1', type=str, help="device to place bert encoder.")
+    parser.add_argument("--model_gpu", default='2', type=str, help="device to place model.")
     parser.add_argument("--input_dim", type=int, default=768, help="bert-base=768, bert-large=1024")
 
     # bi attn

@@ -7,8 +7,8 @@ import pickle
 from os import listdir
 from os.path import isfile, join
 
-def normalize_answer(s):
 
+def normalize_answer(s):
     def remove_articles(text):
         return re.sub(r'\b(a|an|the)\b', ' ', text)
 
@@ -61,6 +61,7 @@ def update_answer(metrics, prediction, gold):
     metrics['re'] += recall
     return em, prec, recall
 
+
 def update_sp(metrics, prediction, gold):
     cur_sp_pred = set(map(tuple, prediction))
     gold_sp_pred = set(map(tuple, gold))
@@ -85,14 +86,16 @@ def update_sp(metrics, prediction, gold):
 
 
 def eval(prediction_file, gold_file):
+    response_pattern = []
+
     with open(prediction_file) as f:
         prediction = json.load(f)
     with open(gold_file) as f:
         gold = json.load(f)
 
     metrics = {'em': 0, 'f1': 0, 'pr': 0, 're': 0,
-        'sp_em': 0, 'sp_f1': 0, 'sp_pr': 0, 'sp_re': 0,
-        'jt_em': 0, 'jt_f1': 0, 'jt_pr': 0, 'jt_re': 0}
+               'sp_em': 0, 'sp_f1': 0, 'sp_pr': 0, 'sp_re': 0,
+               'jt_em': 0, 'jt_f1': 0, 'jt_pr': 0, 'jt_re': 0}
     for dp in gold:
         cur_id = dp['_id']
         can_eval_joint = True
@@ -102,6 +105,11 @@ def eval(prediction_file, gold_file):
         else:
             em, prec, recall = update_answer(
                 metrics, prediction['answer'][cur_id], dp['answer'])
+            if int(em) == 1:
+                response_pattern.append(1)
+            else:
+                response_pattern.append(0)
+
         if cur_id not in prediction['sp']:
             # print('missing sp fact {}'.format(cur_id))
             can_eval_joint = False
@@ -128,31 +136,51 @@ def eval(prediction_file, gold_file):
         metrics[k] /= N
 
     # print(metrics)
-    return metrics
+    return metrics, response_pattern
 
 
 if __name__ == '__main__':
-    onlyfiles = sorted([join(sys.argv[1], f) for f in listdir(sys.argv[1]) if isfile(join(sys.argv[1], f)) and f.startswith('pred')], key=lambda x: int(x.strip('.json').split('_')[-1]))
-    metrics = []
-    for f in onlyfiles:
-        try:
-            metrics.append(eval(f, sys.argv[2]))
-        except KeyError as e:
-            print(e)
+    base_dir = "output/submissions"
+    all_metrics = {}
+    all_response_patterns = {}
+    for model in listdir(base_dir):
+        model_dir = f"{base_dir}/{model}/"
+        onlyfiles = sorted(
+            [join(model_dir, f) for f in listdir(model_dir) if isfile(join(model_dir, f)) and f.startswith('pred')],
+            key=lambda x: int(x.strip('.json').split('_')[-1]))
+        metrics = []
+        response_patterns = []
+        print(onlyfiles)
+        for f in onlyfiles:
+            try:
+                local_metric, local_res = eval(f, 'hotpot_dev_distractor_v1.json')
+                local_metric['epoch'] = f
+                local_res.append(f)
+                metrics.append(local_metric)
+                response_patterns.append(local_res)
+            except KeyError as e:
+                print(e)
 
+        keys = ['em', 'f1', 'pr', 're', 'sp_em', 'sp_f1', 'sp_pr', 'sp_re', 'jt_em', 'jt_f1', 'jt_pr', 'jt_re']
+        print('\t' + '\t'.join(keys))
 
-    keys = ['em', 'f1', 'pr', 're', 'sp_em', 'sp_f1', 'sp_pr', 'sp_re', 'jt_em', 'jt_f1', 'jt_pr', 'jt_re']
-    print('\t' + '\t'.join(keys))
+        temp = 'ep%02d\t' + '\t'.join(['%.4f'] * 12)
+        # print(temp)
+        best_iter = -1
+        best_em = -1
+        for i, me in enumerate(metrics):
+            if me['em'] > best_em:
+                best_em = me['em']
+                best_iter = i
+            print(temp % tuple([i] + list(map(lambda x: me[x], keys))))
 
-    temp = 'ep%02d\t' + '\t'.join(['%.4f']*12)
-    # print(temp)
-    best_iter = -1
-    best_em = -1
-    for i, me in enumerate(metrics):
-        if me['em'] > best_em:
-            best_em = me['em']
-            best_iter = i
-        print(temp % tuple([i] + list(map(lambda x: me[x], keys))))
+        print('best_iter = %d' % best_iter)
+        print(temp % tuple([best_iter] + list(map(lambda x: metrics[best_iter][x], keys))))
+        all_metrics[model] = metrics
+        all_response_patterns[model] = response_patterns
 
-    print('best_iter = %d' % best_iter)
-    print(temp % tuple([best_iter] + list(map(lambda x: metrics[best_iter][x], keys))))
+    with open("all_metrics.json", "w") as f:
+        json.dump(all_metrics, f)
+
+    with open("all_response_patterns.json", "w") as f:
+        json.dump(all_response_patterns, f)
